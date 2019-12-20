@@ -1,0 +1,51 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.2.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+	id 'java'
+	id 'eclipse'
+	id 'com.google.cloud.tools.jib' version '1.8.0'
+	
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	maven{url "http://maven.aliyun.com/nexus/content/groups/public/"}
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+jib {
+	from {
+	  image = 'openjdk:alpine'
+	}
+	to {
+	  image = 'cwocwo/source-ip'
+	  auth {
+		  username = project.properties["username"]
+		  password = project.properties["password"]
+	  }
+	  tags = ['1.0.0', 'latest']
+	}
+	container {
+	  jvmFlags = ['-Xms256m', '-Xdebug', '-Xmy:flag=jib-rules']
+	  mainClass = 'com.example.demo.DemoApplication'
+//	  args = ['some', 'args']
+//	  ports = ['1000', '2000-2003/udp']
+	  ports = ['8080']
+//	  labels = [key1:'value1', key2:'value2']
+	  format = 'OCI'
+	}
+  }
+
+test {
+	useJUnitPlatform()
+}
